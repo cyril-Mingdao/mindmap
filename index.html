@@ -34,18 +34,18 @@
   .toolbar{
     position:sticky;top:0;z-index:5;background:var(--black);
     display:flex;flex-wrap:wrap;gap:8px;align-items:center;
-    padding:10px 24px;border-bottom:1px solid var(--gray);
+    padding:2px 24px;border-bottom:1px solid var(--gray);
   }
   .toolbar input{
-    flex:1 1 220px;min-width:0;padding:9px 12px;border-radius:8px;
-    border:2px solid var(--gray);background:var(--gray);color:var(--white);font-size:1rem;
+    flex:1 1 220px;min-width:0;padding:1px 10px;border-radius:6px;
+    border:2px solid var(--gray);background:var(--gray);color:var(--white);font-size:.9rem;
   }
   .toolbar input:focus{outline:none;border-color:var(--yellow)}
   .toolbar button{
-    padding:9px 14px;border:0;border-radius:8px;cursor:pointer;font-size:.95rem;font-weight:700;
+    padding:3px 12px;border:0;border-radius:6px;cursor:pointer;font-size:.85rem;font-weight:700;
     background:var(--yellow);color:var(--black);
   }
-  .toolbar button.ghost{background:transparent;color:var(--yellow);border:2px solid var(--yellow)}
+  .toolbar button.ghost{background:transparent;color:var(--yellow);box-shadow:inset 0 0 0 2px var(--yellow)}
   .toolbar .stat{color:var(--muted);font-size:.85rem;white-space:nowrap}
 
   /* ===== 節點 ===== */
@@ -126,7 +126,7 @@
   /* ===== 直式螢幕：由上而下的樹狀清單 ===== */
   @media (orientation:portrait){
     header,.toolbar{padding-left:16px;padding-right:16px}
-    .map{display:block;height:auto;overflow:visible;cursor:auto;padding:18px 16px 30px}
+    .map{display:block;height:auto;overflow:visible;cursor:auto;padding:12px 16px 30px}
     .radial{display:none}
     .vtree{display:block}
     .vtree ul{margin-left:14px}
