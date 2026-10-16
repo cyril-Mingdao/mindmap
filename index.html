@@ -1,0 +1,523 @@
+<!doctype html>
+<!--
+  【著作權聲明】
+  宗龍的台語課 網站心智圖 — 以心智圖呈現「宗龍的台語課」Google 協作平台的全站架構，每個項目可直接點進對應頁面
+  Copyright © 2026 詹宗龍（臺中明道中學）. All rights reserved.
+  本網頁之程式碼、版面與教案設計著作權屬詹宗龍所有，僅供非營利之教育教學使用。
+  未經著作權人書面授權，不得重製、改作、散布或修改本網頁之全部或一部分。
+  網站內連結之外部服務（教育部辭典、iTaigi、公視、意傳、陽明交大等），其著作權屬原權利人。
+-->
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="author" content="詹宗龍（臺中明道中學）">
+<meta name="copyright" content="© 2026 詹宗龍（臺中明道中學）。保留一切權利。">
+<title>宗龍的台語課・網站心智圖</title>
+<style>
+  :root{
+    --black:#111111; --yellow:#FFD400; --white:#FFFFFF;
+    --gray:#2A2A2A; --light:#F5F5F5; --line:#555555; --muted:#A8A8A8;
+    --gap:26px;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  body{
+    background:var(--black); color:var(--white);
+    font-family:"Noto Sans TC","Microsoft JhengHei","PingFang TC",system-ui,sans-serif;
+    line-height:1.4;
+  }
+  header{padding:16px 24px 12px;border-bottom:4px solid var(--yellow)}
+  header h1{margin:0;font-size:clamp(1.25rem,3vw,1.8rem);letter-spacing:.04em}
+  header h1 span{color:var(--yellow)}
+  header p{margin:6px 0 0;color:var(--muted);font-size:.9rem}
+  .toolbar{
+    position:sticky;top:0;z-index:5;background:var(--black);
+    display:flex;flex-wrap:wrap;gap:8px;align-items:center;
+    padding:10px 24px;border-bottom:1px solid var(--gray);
+  }
+  .toolbar input{
+    flex:1 1 220px;min-width:0;padding:9px 12px;border-radius:8px;
+    border:2px solid var(--gray);background:var(--gray);color:var(--white);font-size:1rem;
+  }
+  .toolbar input:focus{outline:none;border-color:var(--yellow)}
+  .toolbar button{
+    padding:9px 14px;border:0;border-radius:8px;cursor:pointer;font-size:.95rem;font-weight:700;
+    background:var(--yellow);color:var(--black);
+  }
+  .toolbar button.ghost{background:transparent;color:var(--yellow);border:2px solid var(--yellow)}
+  .toolbar .stat{color:var(--muted);font-size:.85rem;white-space:nowrap}
+
+  /* ===== 節點 ===== */
+  .node{
+    display:inline-flex;align-items:center;gap:6px;flex:0 0 auto;
+    border-radius:10px;padding:6px 6px 6px 12px;max-width:300px;
+  }
+  .node a{color:inherit;text-decoration:none;font-weight:600}
+  .node a:hover,.node a:focus-visible{text-decoration:underline;text-underline-offset:3px;outline:none}
+  .node .ext{font-size:.75em;opacity:.7;margin-left:2px}
+  .node a.quiz{
+    flex:0 0 auto;font-size:.75rem;font-weight:700;white-space:nowrap;
+    padding:2px 8px;border-radius:999px;background:var(--yellow);color:var(--black);
+  }
+  .tog{
+    flex:0 0 auto;min-width:30px;height:26px;padding:0 6px;border-radius:13px;cursor:pointer;
+    border:2px solid currentColor;background:transparent;color:inherit;font-size:.78rem;font-weight:700;
+  }
+  .node.leaf{padding-right:12px}
+  .lv0>.node,.hub>.node{
+    background:var(--yellow);color:var(--black);font-size:1.3rem;
+    padding:14px 20px;border-radius:16px;box-shadow:0 0 0 6px rgba(255,212,0,.18);
+  }
+  .lv1>.node{background:var(--white);color:var(--black);border-left:6px solid var(--yellow)}
+  .lv2>.node{background:var(--gray);color:var(--yellow);border:1px solid var(--yellow)}
+  .lv3>.node{background:var(--gray);color:var(--white);font-size:.92rem}
+  .lv3>.node a:not(.quiz){font-weight:500}
+  .lv1>.node .tog{background:var(--black);color:var(--yellow);border-color:var(--black)}
+  .node.hit{box-shadow:0 0 0 3px var(--yellow)}
+  li.collapsed>ul,li.hide{display:none}
+  ul{list-style:none;margin:0;padding:0}
+
+  /* ===== 橫式螢幕：由中心向外擴散（右側往右長、左側往左長） ===== */
+  .map{
+    display:flex;overflow:auto;cursor:grab;
+    height:calc(100vh - var(--chrome, 150px));min-height:320px;
+  }
+  .map.dragging{cursor:grabbing;user-select:none}
+  .radial{margin:auto;padding:40px;display:flex;align-items:center;width:max-content}
+  .hub{flex:0 0 auto;position:relative;z-index:1}
+  /* 分支不可被壓縮，否則超出容器的部分捲動不到 */
+  .radial>*,.radial li>.node,.radial li>ul{flex-shrink:0}
+  /* 兩側外緣留白放在分支本身，捲到最邊時末端項目外仍有空間 */
+  .radial .side.R{padding-right:40px}
+  .radial .side.L{padding-left:40px}
+  .radial ul{position:relative;display:flex;flex-direction:column;padding-left:var(--gap)}
+  .radial li{position:relative;display:flex;align-items:center;padding:4px 0 4px var(--gap)}
+  .radial li::before{content:"";position:absolute;left:0;top:50%;width:var(--gap);border-top:2px solid var(--line)}
+  .radial li::after{content:"";position:absolute;left:0;top:0;bottom:0;border-left:2px solid var(--line)}
+  .radial li:first-child::after{top:50%}
+  .radial li:last-child::after{bottom:50%}
+  .radial li:only-child::after{display:none}
+  .radial ul::before{content:"";position:absolute;left:0;top:50%;width:var(--gap);border-top:2px solid var(--line)}
+  /* 左半邊鏡像 */
+  .radial .L{padding-left:0;padding-right:var(--gap)}
+  .radial .L ul{padding-left:0;padding-right:var(--gap)}
+  .radial .L li{flex-direction:row-reverse;padding:4px var(--gap) 4px 0}
+  .radial .L li::before,.radial .L ul::before,.radial .L::before{left:auto;right:0}
+  .radial .L li::after{left:auto;right:0;border-left:0;border-right:2px solid var(--line)}
+  /* 每一組兄弟項目等寬（寬度由 JS 依最寬者設定），標題起點對齊同一條線 */
+  .radial .side .node{display:grid;align-items:center;column-gap:6px}
+  /* 右側：標題靠左，測驗鈕、數字鈕在右端 */
+  .radial .R .node{grid-template-columns:1fr auto auto;padding:6px 6px 6px 12px}
+  .radial .R .node.leaf{padding-right:12px}
+  .radial .R .node>.tog{justify-self:end}
+  /* 左側：數字鈕固定在最左欄（44px），標題接在後面 */
+  .radial .L .node{grid-template-columns:auto 1fr auto;padding:6px 12px 6px 6px}
+  .radial .L .node>.tog{grid-column:1;grid-row:1;width:44px}
+  .radial .L .node>a:not(.quiz){grid-column:2;grid-row:1}
+  .radial .L .node>a.quiz{grid-column:3;grid-row:1}
+  .radial .L .node.leaf{padding-left:12px}
+  .radial .L.tog-group>li>.node.leaf,.radial .L .tog-group>li>.node.leaf{padding-left:56px}
+  /* 第一層主幹用黃線 */
+  .radial .side::before,.radial .side>li::before,.radial .side>li::after{border-color:var(--yellow)!important;border-width:3px}
+
+  .vtree{display:none}
+
+  /* ===== 直式螢幕：由上而下的樹狀清單 ===== */
+  @media (orientation:portrait){
+    header,.toolbar{padding-left:16px;padding-right:16px}
+    .map{display:block;height:auto;overflow:visible;cursor:auto;padding:18px 16px 30px}
+    .radial{display:none}
+    .vtree{display:block}
+    .vtree ul{margin-left:14px}
+    .vtree li{position:relative;padding:4px 0 4px 20px}
+    .vtree li::before{content:"";position:absolute;left:0;top:21px;width:18px;border-top:2px solid var(--line)}
+    .vtree li::after{content:"";position:absolute;left:0;top:0;bottom:0;border-left:2px solid var(--line)}
+    .vtree li:last-child::after{bottom:auto;height:22px}
+    .vtree>li{padding-left:0}
+    .vtree>li::before,.vtree>li::after{display:none}
+    .vtree>li>ul{margin-left:10px;margin-top:8px}
+    .vtree>li>ul>li::before,.vtree>li>ul>li::after{border-color:var(--yellow)}
+    .node{display:flex;width:fit-content;max-width:100%}
+    .node a:not(.quiz){flex:1 1 auto}
+    .lv0>.node{font-size:1.1rem;padding:10px 16px}
+  }
+
+  footer{padding:14px 24px 24px;color:var(--muted);font-size:.82rem;border-top:1px solid var(--gray)}
+  footer a{color:var(--yellow)}
+</style>
+</head>
+<body>
+
+<div class="toolbar">
+  <input id="q" type="search" placeholder="搜尋：課名、工具名稱（例：馬偕、媠花、全華）" aria-label="搜尋心智圖">
+  <button id="expand" type="button">全部展開</button>
+  <button id="collapse" type="button" class="ghost">全部收合</button>
+  <span class="stat" id="stat"></span>
+</div>
+
+<main class="map" id="map"><div class="radial" id="radial"></div><ul class="vtree" id="vtree"></ul></main>
+
+<footer>
+  資料來源：<a href="https://sites.google.com/ms.mingdao.edu.tw/tsiam" target="_blank" rel="noopener">宗龍的台語課（Google 協作平台）</a>，2026-10-16 擷取全站連結整理（含各課次頁內的線上測驗連結）。
+  © 2026 詹宗龍（臺中明道中學）
+</footer>
+
+<script>
+/*! 宗龍的台語課 網站心智圖 — © 2026 詹宗龍（臺中明道中學）保留一切權利。 */
+const SITE = 'https://sites.google.com/ms.mingdao.edu.tw/tsiam/';
+const S = p => /^https?:/.test(p) ? p : SITE + encodeURI(p);
+const PEN = 'https://cyril-mingdao.github.io/pen/';
+const QUIZ = 'https://cyril-mingdao.github.io/taigi-quiz/';
+
+// 各課次頁內「📝 線上測驗」的檔名規則：工具代碼-版本代碼L課次（育達第5課分 5-1／5-2 時加後綴）
+const QUIZ_TOOL = {形音義: 'HINGIM', 生份字: 'SIANN', 選詞塌空: 'SUANSU', 咱來鬥句: 'TAUKU'};
+const QUIZ_VER = {真平版國中第1冊: 'CHINPING-B1', 全華版國中第3冊: 'CHUANHWA-B3', 育達版高中全1冊: 'YUDA-B1', 康軒版國中第2冊: 'KANGHSUAN-B2'};
+const CN = {一: 1, 二: 2, 三: 3, 四: 4, 五: 5, 六: 6, 七: 7, 八: 8};
+function quizOf(path){
+  const [tool, ver, page] = path.split('/');
+  const m = page && page.match(/^第([一二三四五六七八\d])課-(\d(?=\D))?/);
+  if (!QUIZ_TOOL[tool] || !QUIZ_VER[ver] || !m) return null;
+  const n = CN[m[1]] || m[1];
+  return `${QUIZ}${QUIZ_TOOL[tool]}-${QUIZ_VER[ver]}L${n}${m[2] ? '-' + m[2] : ''}.html`;
+}
+
+// 將「工具/版本/課次」路徑清單依版本分組
+function byVersion(list){
+  const groups = new Map();
+  list.forEach(([path, label]) => {
+    const parts = path.split('/');
+    const node = {t: label, u: path, q: quizOf(path)};
+    if (parts.length < 3) { groups.set('_' + path, node); return; }
+    if (!groups.has(parts[1])) groups.set(parts[1], {t: parts[1], u: parts[0], c: []});
+    groups.get(parts[1]).c.push(node);
+  });
+  return [...groups.values()];
+}
+const CH = tool => [
+  [`${tool}/全華版國中第3冊/第1課-媠花`, '第1課 媠花'],
+  [`${tool}/全華版國中第3冊/第2課-阮兜這條街`, '第2課 阮兜這條街'],
+  [`${tool}/全華版國中第3冊/第3課-一字多音真心適`, '第3課 一字多音真心適'],
+  [`${tool}/全華版國中第3冊/第4課-喝玲瑯踅街路`, '第4課 喝玲瑯，踅街路']
+];
+const REF = [
+  {t: '教育部台語辭典', u: 'https://sutian.moe.edu.tw/zh-hant/'},
+  {t: 'iTaigi 愛台語', u: 'https://itaigi.tw/k/%E5%8F%B0%E8%AA%9E/'},
+  {t: '公視台語新詞庫', u: 'https://www.taigitv.org.tw/taigi-words'},
+  {t: '陽明交大語音合成', u: 'http://tts001.ivoice.tw:8804/'}
+];
+
+const DATA = {t: '宗龍的台語課', u: '首頁', c: [
+  {t: '網站紹介', i: '📺', u: '網站紹介', c: [
+    {t: '▶ 宗龍的台語課（華語介紹）', u: 'https://www.youtube.com/watch?v=lRKkWrjssoQ'},
+    {t: '▶ 宗龍的台語課（台語紹介）', u: 'https://www.youtube.com/watch?v=mE_xaBoZIlU'},
+    {t: '▶ 宗龍的台語課（師生升級之路）', u: 'https://www.youtube.com/watch?v=8m94O-hLhPw'}
+  ]},
+  {t: '1. 華台語翻譯語音', i: '🗣️', u: '華台翻譯', c: [
+    {t: '華台轉換工具（來源網站）', u: 'https://gnisew.github.io/tools/turn/g2m2.html'},
+    {t: '意傳媠聲（來源網站）', u: 'https://suisiann.ithuan.tw/'},
+    {t: '陽明交大語音合成', u: 'http://tts001.ivoice.tw:8804/'},
+    {t: '長問翻譯器', u: 'https://translate.bronci.com.tw/'},
+    {t: '教育部台語辭典', u: 'https://sutian.moe.edu.tw/zh-hant/'},
+    {t: 'iTaigi 愛台語', u: 'https://itaigi.tw/k/%E5%8F%B0%E8%AA%9E/'},
+    {t: '公視台語新詞', u: 'https://www.taigitv.org.tw/taigi-words'}
+  ]},
+  {t: '2. 形音義配對', i: '💡', u: '形音義', c: byVersion([
+    ['形音義/真平版國中第1冊/第一課-趣味的誤會','第1課 趣味的誤會'],['形音義/真平版國中第1冊/第二課-啥台語嘛有火星文','第2課 啥台語嘛有火星文'],['形音義/真平版國中第1冊/第三課-人佮獅','第3課 人佮獅'],['形音義/真平版國中第1冊/第四課-龜兔走標','第4課 龜兔走標'],['形音義/真平版國中第1冊/第五課-踅菜市','第5課 踅菜市'],['形音義/真平版國中第1冊/第六課-割稻仔飯','第6課 割稻仔飯'],
+    ...CH('形音義'),
+    ['形音義/育達版高中全1冊/第一課-美食外送','第1課 美食外送'],['形音義/育達版高中全1冊/第二課-茂林的rukai族','第2課 茂林的Rukai族'],['形音義/育達版高中全1冊/第三課-山裡的英雄','第3課 山裡的英雄'],['形音義/育達版高中全1冊/第四課-馬偕之路','第4課 馬偕之路'],['形音義/育達版高中全1冊/第五課-無字的情批-情批','第5課 無字的情批＋情批'],['形音義/育達版高中全1冊/第六課-化妝品','第6課 化妝品'],['形音義/育達版高中全1冊/第七課-我的人生我創造','第7課 我的人生，我創造'],['形音義/育達版高中全1冊/第八課-翕相師傅','第8課 翕相師傅'],
+    ['形音義/康軒版國中第2冊/第一課-chatgpt敢會曉講台語','第1課 ChatGPT敢會曉講台語'],['形音義/康軒版國中第2冊/第二課-收成','第2課 收成'],['形音義/康軒版國中第2冊/第三課-工作犬','第3課 工作犬'],['形音義/康軒版國中第2冊/第四課-一擺上有意義的活動','第4課 一擺上有意義的活動'],['形音義/康軒版國中第2冊/第五課-媠花','第5課 媠花'],
+    ['形音義/手機版顯示','📱 手機版顯示']
+  ])},
+  {t: '3. 咱來餾生份字', i: '🎮', u: '生份字', c: byVersion([
+    ['生份字/真平版國中第1冊/第一課-趣味的誤會','第1課 趣味的誤會'],['生份字/真平版國中第1冊/第二課-啥台語嘛有火星文','第2課 啥台語嘛有火星文'],['生份字/真平版國中第1冊/第三課-人佮獅','第3課 人佮獅'],['生份字/真平版國中第1冊/第四課-龜兔走標','第4課 龜兔走標'],['生份字/真平版國中第1冊/第五課-踅菜市','第5課 踅菜市'],['生份字/真平版國中第1冊/第六課-割稻仔飯','第6課 割稻仔飯'],
+    ...CH('生份字'),
+    ['生份字/育達版高中全1冊/第一課-美食外送','第1課 美食外送'],['生份字/育達版高中全1冊/第二課-茂林的rukai族','第2課 茂林的Rukai族'],['生份字/育達版高中全1冊/第三課-山裡的英雄','第3課 山裡的英雄'],['生份字/育達版高中全1冊/第四課-馬偕之路','第4課 馬偕之路'],['生份字/育達版高中全1冊/第五課-1無字的情批','第5課 1 無字的情批'],['生份字/育達版高中全1冊/第五課-2情批','第5課 2 情批'],['生份字/育達版高中全1冊/第六課-化妝品','第6課 化妝品'],['生份字/育達版高中全1冊/第七課-我的人生我創造','第7課 我的人生，我創造'],['生份字/育達版高中全1冊/第八課-翕相師傅','第8課 翕相師傅'],
+    ['生份字/康軒版國中第2冊/第一課-chatgpt敢會曉講台語','第1課 ChatGPT敢會曉講台語'],['生份字/康軒版國中第2冊/第二課-收成','第2課 收成'],['生份字/康軒版國中第2冊/第三課-工作犬','第3課 工作犬'],['生份字/康軒版國中第2冊/第四課-一擺上有意義的活動','第4課 一擺上有意義的活動'],['生份字/康軒版國中第2冊/第五課-媠花','第5課 媠花']
+  ])},
+  {t: '4. 選詞塌空', i: '🧩', u: '選詞塌空', c: byVersion([
+    ['選詞塌空/真平版國中第1冊/第1課-趣味的誤會','第1課 趣味的誤會'],['選詞塌空/真平版國中第1冊/第2課-啥台語嘛有火星文','第2課 啥台語嘛有火星文'],['選詞塌空/真平版國中第1冊/第3課-人佮獅','第3課 人佮獅'],['選詞塌空/真平版國中第1冊/第4課-龜兔走標','第4課 龜兔走標'],['選詞塌空/真平版國中第1冊/第5課-踅菜市','第5課 踅菜市'],['選詞塌空/真平版國中第1冊/第6課-割稻仔飯','第6課 割稻仔飯'],
+    ...CH('選詞塌空'),
+    ['選詞塌空/育達版高中全1冊/第1課-美食外送','第1課 美食外送'],['選詞塌空/育達版高中全1冊/第2課-茂林的rukai族佮烏秫米祭','第2課 茂林的Rukai族'],['選詞塌空/育達版高中全1冊/第3課-山裡的英雄','第3課 山裡的英雄'],['選詞塌空/育達版高中全1冊/第4課-馬偕之路','第4課 馬偕之路'],['選詞塌空/育達版高中全1冊/第5課-1無字的情批','第5課 1 無字的情批'],['選詞塌空/育達版高中全1冊/第5課-2情批','第5課 2 情批'],['選詞塌空/育達版高中全1冊/第6課-化妝品','第6課 化妝品'],['選詞塌空/育達版高中全1冊/第7課-我的人生我創造','第7課 我的人生，我創造'],['選詞塌空/育達版高中全1冊/第8課-翕相師傅','第8課 翕相師傅'],
+    ['選詞塌空/康軒版國中第2冊/第1課-chatgpt敢會曉講台語','第1課 ChatGPT敢會曉講台語'],['選詞塌空/康軒版國中第2冊/第2課-收成','第2課 收成'],['選詞塌空/康軒版國中第2冊/第3課-工作犬','第3課 工作犬'],['選詞塌空/康軒版國中第2冊/第4課-一擺上有意義的活動','第4課 一擺上有意義的活動'],['選詞塌空/康軒版國中第2冊/第5課-媠花','第5課 媠花']
+  ])},
+  {t: '5. 咱來鬥句', i: '🏗️', u: '咱來鬥句', c: byVersion([
+    ['咱來鬥句/真平版國中第1冊/第1課-趣味的誤會','第1課 趣味的誤會'],['咱來鬥句/真平版國中第1冊/第2課-啥台語嘛有火星文','第2課 啥台語嘛有火星文'],['咱來鬥句/真平版國中第1冊/第3課-人佮獅','第3課 人佮獅'],['咱來鬥句/真平版國中第1冊/第4課-龜兔走標','第4課 龜兔走標'],['咱來鬥句/真平版國中第1冊/第5課-踅菜市','第5課 踅菜市'],['咱來鬥句/真平版國中第1冊/第6課-割稻仔飯','第6課 割稻仔飯'],
+    ...CH('咱來鬥句'),
+    ['咱來鬥句/育達版高中全1冊/第1課-美食外送','第1課 美食外送'],['咱來鬥句/育達版高中全1冊/第2課-茂林的rukai族佮烏秫米祭','第2課 茂林的Rukai族'],['咱來鬥句/育達版高中全1冊/第3課-山裡的英雄','第3課 山裡的英雄'],['咱來鬥句/育達版高中全1冊/第4課-馬偕之路','第4課 馬偕之路'],['咱來鬥句/育達版高中全1冊/第5課-1無字的情批','第5課 1 無字的情批'],['咱來鬥句/育達版高中全1冊/第5課-2情批','第5課 2 情批'],['咱來鬥句/育達版高中全1冊/第6課-化妝品','第6課 化妝品'],['咱來鬥句/育達版高中全1冊/第7課-我的人生_我創造','第7課 我的人生，我創造'],['咱來鬥句/育達版高中全1冊/第8課-翕相師傅','第8課 翕相師傅'],
+    ['咱來鬥句/康軒版國中第2冊/第1課-chatgpt敢會曉講台語','第1課 ChatGPT敢會曉講台語'],['咱來鬥句/康軒版國中第2冊/第2課-收成','第2課 收成'],['咱來鬥句/康軒版國中第2冊/第3課-工作犬','第3課 工作犬'],['咱來鬥句/康軒版國中第2冊/第4課-一擺上有意義的活動','第4課 一擺上有意義的活動'],['咱來鬥句/康軒版國中第2冊/第5課-媠花','第5課 媠花']
+  ])},
+  {t: '6. 心智圖配對', i: '🧠', u: '心智圖', c: byVersion([
+    ['心智圖/育達版高中全1冊/第一課-美食外送','第1課 美食外送'],['心智圖/育達版高中全1冊/第二課-茂林的rukai族佮烏秫米祭','第2課 茂林的Rukai族佮烏秫米祭'],['心智圖/育達版高中全1冊/第三課-山裡的英雄','第3課 山裡的英雄'],['心智圖/育達版高中全1冊/第四課-馬偕之路','第4課 馬偕之路'],['心智圖/育達版高中全1冊/第五課-1無字的情批','第5課 1 無字的情批'],['心智圖/育達版高中全1冊/第五課-2情批','第5課 2 情批'],['心智圖/育達版高中全1冊/第六課-化妝品','第6課 化妝品'],['心智圖/育達版高中全1冊/第七課-我的人生我創造','第7課 我的人生，我創造'],['心智圖/育達版高中全1冊/第八課-翕相師傅','第8課 翕相師傅']
+  ])},
+  {t: '7. 延伸討論', i: '💬', u: '延伸討論', c: [{t: '育達版高中全1冊', u: '延伸討論', c: [
+    ['延伸討論/第1課-美食外送','第1課 美食外送'],['延伸討論/第2課-茂林的rukai族佮烏秫米祭','第2課 茂林的Rukai族佮烏秫米祭'],['延伸討論/第3課-山裡的英雄','第3課 山裡的英雄'],['延伸討論/第4課-馬偕之路','第4課 馬偕之路'],['延伸討論/第5課-無字的情批-情批','第5課 無字的情批＋情批'],['延伸討論/第6課-化妝品','第6課 化妝品'],['延伸討論/第7課-我的人生我創造','第7課 我的人生，我創造'],['延伸討論/第8課-翕相師傅','第8課 翕相師傅']
+  ].map(([u, t]) => ({t, u}))}]},
+  {t: '8. 自學點讀筆', i: '🖊️', u: '點讀筆', c: [
+    {t: '真平版國中第1冊', u: '點讀筆', c: ['趣味的誤會','啥台語嘛有火星文','人佮獅','龜兔走標','踅菜市','割稻仔飯']
+      .map((n, k) => ({t: `第${k+1}課 ${n}`, u: `${PEN}CHENPING-B1L${k+1}`}))},
+    {t: '全華版國中第3冊', u: '點讀筆', c: ['媠花','阮兜這條街','一字多音真心適','喝玲瑯，踅街路']
+      .map((n, k) => ({t: `第${k+1}課 ${n}`, u: `${PEN}CHUANHWA-B3L${k+1}`}))},
+    {t: '育達版高中全1冊', u: '點讀筆', c: [
+      ['1','第1課 美食外送'],['2','第2課 茂林的Rukai族佮烏秫米祭'],['3','第3課 山裡的英雄'],['4','第4課 馬偕之路'],
+      ['5-1','第5課 無字的情批-1'],['5-2','第5課 情批-2'],['6','第6課 化妝品'],['7','第7課 我的人生，我創造'],['8','第8課 翕相師傅']
+    ].map(([k, t]) => ({t, u: `${PEN}YUDA-B1L${k}`}))},
+    {t: '康軒版國中第2冊', u: '點讀筆', c: [
+      ['點讀筆/康軒版國中第2冊/第1課-chatgpt敢會曉講台語','第1課 ChatGPT敢會曉講台語'],['點讀筆/康軒版國中第2冊/第2課-收成','第2課 收成'],['點讀筆/康軒版國中第2冊/第3課-工作犬','第3課 工作犬'],['點讀筆/康軒版國中第2冊/第4課-一擺上有意義的活動','第4課 一擺上有意義的活動'],['點讀筆/康軒版國中第2冊/第5課-媠花','第5課 媠花']
+    ].map(([u, t]) => ({t, u}))}
+  ]},
+  {t: '9. 羅馬字發音練習', i: '🔤', u: '發音練習', c: [
+    {t: '📖 台語羅馬字拼音系統', u: 'https://cyril-mingdao.github.io/Taiwanese-Romanization/'},
+    {t: '✍️ 拼字組合練習', u: 'https://sites.google.com/ms.mingdao.edu.tw/tsiam/1/%E7%BE%85%E9%A6%AC%E5%AD%97%E7%B5%84%E5%90%88%E7%B7%B4%E7%BF%92', c: [
+      {t: '聲調（外部參考）', u: 'https://kr.hujiang.com/fayinbiao/#pindu'}
+    ]},
+    {t: '🔍 拆解羅馬字', u: 'https://cyril-mingdao.github.io/Analysis-of-Romanization/'}
+  ]},
+  {t: '10. 進階練習', i: '🚀', u: '進階練習', c: [
+    {t: '口說', u: '進階練習', c: [
+      {t: '教育部俗諺語 1', u: '進階練習/口說-教育部俗諺語i'},
+      {t: '教育部俗諺語 2', u: '進階練習/口說-教育部俗諺語ii'},
+      {t: '202404 新增詞條', u: '進階練習/口說-202404新增詞條'},
+      {t: '202505 新增詞條', u: '進階練習/口說-202505新增詞條'},
+      {t: '202604 新增詞條', u: '進階練習/口說-202604新增詞條'},
+      {t: '202604 新增俗諺', u: '進階練習/口說-202604新增俗諺'}
+    ]},
+    {t: '閱讀', u: '進階練習', c: [{t: '歷屆認證 B 卷題庫', u: '進階練習/閱讀-歷屆認證b卷題庫i'}]},
+    {t: '拼寫', u: '進階練習', c: [
+      {t: 'C1 詞庫 1', u: '進階練習/拼寫-c1詞庫i'},
+      {t: 'C1 詞庫 2', u: '進階練習/拼寫-c1詞庫ii'}
+    ]},
+    {t: '台語輸入法下載', u: '進階練習', c: [
+      {t: 'Windows', u: 'http://language.moe.gov.tw/sujip/EduTaigi-v1.3.2.0.zip'},
+      {t: 'Mac', u: 'http://language.moe.gov.tw/sujip/TaiwaneseTaigi-1.6.1.147.dmg'},
+      {t: 'Linux', u: 'http://language.moe.gov.tw/sujip/tlim2.tar.gz'},
+      {t: 'Android', u: 'https://play.google.com/store/apps/details?id=tw.moe.taiwanese.taigi&hl=zh_TW'},
+      {t: 'iPhone', u: 'https://apps.apple.com/tw/app/%E5%8F%B0%E8%AA%9E%E8%BC%B8%E5%85%A5%E6%B3%95/id6758265944'}
+    ]}
+  ]},
+  {t: '11. 課程工具', i: '🧰', u: '課程工具', c: [
+    {t: '⚾ 大聯盟選秀', u: 'https://sites.google.com/ms.mingdao.edu.tw/tsiam/1/%ED%95%9C%EA%B3%84%E5%A4%A7%E8%81%AF%E7%9B%9F%E9%81%B8%E7%A7%80', c: [
+      {t: '大聯盟選秀分組（職位介紹）', u: '課程工具/職位介紹'}
+    ]},
+    {t: '👥 分組機制', u: 'https://sites.google.com/ms.mingdao.edu.tw/tsiam/1/%ED%95%9C%EA%B3%84%E5%88%86%E7%B5%84%E6%A9%9F%E5%88%B6'},
+    {t: '🐚 海螺計分', u: 'https://sites.google.com/ms.mingdao.edu.tw/tsiam/1/%ED%95%9C%EA%B3%84%E7%A9%8D%E5%88%86%E6%8F%9B%E7%AE%97'},
+    {t: '🎰 樂透抽獎', u: 'https://sites.google.com/ms.mingdao.edu.tw/tsiam/1/%ED%95%9C%EA%B3%84%E6%A8%82%E9%80%8F%E6%8A%BD%E7%8D%8Eiii'},
+    {t: '👔 職位抽籤', u: 'https://sites.google.com/ms.mingdao.edu.tw/tsiam/1/%ED%95%9C%EA%B3%84%E6%8A%BD%E7%B1%A4%E7%B3%BB%E7%B5%B1'},
+    {t: '🔄 超級循環賽', u: 'https://cyril-mingdao.github.io/cycle/'}
+  ]},
+  {t: '12. 互動答題工具', i: '📝', u: '答題工具', c: [
+    {t: '📝 選擇題', u: 'https://cyril-mingdao.github.io/choose/'},
+    {t: '🔢 排序題', u: 'https://cyril-mingdao.github.io/Sort/'},
+    {t: '🔔 課程搶答', u: 'https://cyril-mingdao.github.io/taigi-buzzer/'}
+  ]},
+  // 分組依原網站「主題教學」頁的難度標示
+  {t: '13. 主題互動教學', i: '🎯', u: '主題教學', c: [
+    ['🟢 難度：易', [
+      ['vegetable','🥦 菜蔬叫啥名'],['VagetableRandom','🥗 菜蔬亂數'],['foods','🍜 美食叫啥名'],['FoodsRandom','🥘 美食亂數'],
+      ['colors','🎨 色水叫啥名'],['softly','🔈 輕聲'],['Harmony','🗣️ 台語合音'],['Zodiac','🐉 十二生相']
+    ]],
+    ['🟡 難度：中', [
+      ['phone','📱 咱來耍手機仔'],['index','🐶 動物叫啥名'],['AnimalRandom','🐼 動物亂數'],['sports','🏀 運動叫啥名'],
+      ['SportsRandom','🏸 運動亂數'],['A-Hundred-Kinds-of-People','👥 台語百樣人大挑戰']
+    ]],
+    ['🔴 難度：難', [
+      ['organ','🫀 器官叫啥名'],['OrganRandom','🧠 器官亂數'],['vhicles','🚗 交通工具叫啥名'],['VhiclesRandom','🚌 交通工具亂數'],
+      ['Incorrect-pronunciation-I','🚨 俗唸 Part1'],['Incorrect-pronunciation-II','⚠️ 俗唸 Part2'],
+      ['chef-I','👨🏻‍🍳 廚子 Part1'],['chef-II','👩🏻‍🍳 廚子 Part2'],['Solar-Terms','⛅ 二十四節氣'],['foreign-words','💬 台語外來詞大挑戰']
+    ]]
+  ].map(([t, list]) => ({t, u: '主題教學', c: list.map(([s, t]) => ({t, u: `https://cyril-mingdao.github.io/${s}/`}))}))},
+  {t: '14. API 進階工具', i: '⚙️', u: 'api進階工具', c: [
+    {t: '🌏 智能翻譯機', u: 'https://cyril-mingdao.github.io/translate/'},
+    {t: '🧠 心智圖大綱生成', u: 'https://cyril-mingdao.github.io/mind-map/'},
+    {t: '💡 伊的台語號做啥', u: 'https://cyril-mingdao.github.io/filter/'},
+    {t: '🔮 台語劇本生成', u: 'https://cyril-mingdao.github.io/Generate-script/'}
+  ]},
+  {t: '15. 教學電子白板', i: '🖥️', u: 'https://cyril-mingdao.github.io/taigi-whiteboard/'},
+  {t: '16. 線上測驗', i: '✅', u: 'https://cyril-mingdao.github.io/taigi-quiz/'},
+  {t: '常用參考資源', i: '📚', u: 'https://sutian.moe.edu.tw/zh-hant/', c: REF}
+]};
+
+// ===== 繪製 =====
+let total = 0;
+function build(n, lv, count){
+  if (count) total += 1 + (n.q ? 1 : 0);
+  const li = document.createElement('li');
+  li.className = 'lv' + Math.min(lv, 3);
+  li._label = n.t;
+  const box = document.createElement('div');
+  box.className = 'node';
+  const a = document.createElement('a');
+  const url = S(n.u);
+  a.href = url; a.target = '_blank'; a.rel = 'noopener';
+  a.textContent = (n.i ? n.i + ' ' : '') + n.t;
+  if (!url.startsWith(SITE)) {
+    const e = document.createElement('span');
+    e.className = 'ext'; e.textContent = '↗'; e.title = '外部網站';
+    a.append(e);
+  }
+  box.append(a);
+  if (n.q){
+    const qa = document.createElement('a');
+    qa.className = 'quiz'; qa.href = n.q; qa.target = '_blank'; qa.rel = 'noopener';
+    qa.textContent = '📝 測驗'; qa.title = n.t + ' 線上測驗';
+    box.append(qa);
+  }
+  if (n.c && n.c.length && lv > 0){
+    const b = document.createElement('button');
+    b.type = 'button'; b.className = 'tog';
+    b.setAttribute('aria-label', '展開或收合「' + n.t + '」');
+    box.append(b);
+    const ul = document.createElement('ul');
+    n.c.forEach(ch => ul.append(build(ch, lv + 1, count)));
+    if (n.c.some(ch => ch.c && ch.c.length)) ul.classList.add('tog-group');
+    li.append(box, ul);
+    li._count = n.c.length;
+    b.addEventListener('click', () => {
+      keepInPlace(box, () => { setOpen(li, li.classList.contains('collapsed')); equalize(); });
+      revealBranch(li);
+    });
+  } else {
+    box.classList.add('leaf');
+    li.append(box);
+  }
+  return li;
+}
+
+// 直式：單一樹
+const vtree = document.getElementById('vtree');
+const vroot = build({...DATA, c: []}, 0, false);
+const vul = document.createElement('ul');
+DATA.c.forEach(ch => vul.append(build(ch, 1, true)));
+vroot.append(vul);
+vtree.append(vroot);
+
+// 橫式：中心向外，順時針排列（右側由上往下，左側由下往上）
+const radial = document.getElementById('radial');
+const half = Math.ceil(DATA.c.length / 2);
+const R = document.createElement('ul'); R.className = 'side R';
+const L = document.createElement('ul'); L.className = 'side L tog-group';
+DATA.c.slice(0, half).forEach(ch => R.append(build(ch, 1, false)));
+DATA.c.slice(half).reverse().forEach(ch => L.append(build(ch, 1, false)));
+const hub = document.createElement('div'); hub.className = 'hub';
+hub.append(build({...DATA, c: []}, 0, false).firstChild);
+radial.append(L, hub, R);
+
+function setOpen(li, open){
+  li.classList.toggle('collapsed', !open);
+  const b = li.querySelector(':scope>.node>.tog');
+  if (b){ b.textContent = open ? '－' : '＋' + li._count; b.setAttribute('aria-expanded', open); }
+}
+const branches = () => document.querySelectorAll('#map li:has(>ul)');
+function defaultState(){ branches().forEach(li => setOpen(li, li.classList.contains('lv0'))); }
+defaultState();
+
+// 展開／收合後，讓被點的節點留在原本的螢幕位置（避免中心擴散時畫面跳動）
+const map = document.getElementById('map');
+const isRadial = () => getComputedStyle(radial).display !== 'none';
+function keepInPlace(el, fn){
+  if (!isRadial()) { fn(); return; }
+  const before = el.getBoundingClientRect();
+  fn();
+  const after = el.getBoundingClientRect();
+  map.scrollLeft += after.left - before.left;
+  map.scrollTop += after.top - before.top;
+}
+// 展開後把「被點的項目＋新長出的子項目」整塊捲進可視範圍；
+// 放不下時以最外側（末端項目）那一邊為準，確保最後觸發的項目文字完整顯示
+function revealBranch(li){
+  if (!isRadial()) return;
+  const PAD = 24;
+  const box = li.querySelector(':scope>.node');
+  const ul = li.querySelector(':scope>ul');
+  const rects = [box.getBoundingClientRect()];
+  if (ul && !li.classList.contains('collapsed')) rects.push(ul.getBoundingClientRect());
+  const r = {
+    left: Math.min(...rects.map(x => x.left)), right: Math.max(...rects.map(x => x.right)),
+    top: Math.min(...rects.map(x => x.top)), bottom: Math.max(...rects.map(x => x.bottom))
+  };
+  const m = map.getBoundingClientRect();
+  const view = {left: m.left + PAD, right: m.left + map.clientWidth - PAD, top: m.top + PAD, bottom: m.top + map.clientHeight - PAD};
+  const onLeft = !!li.closest('.L');
+  let dx = 0, dy = 0;
+  if (r.right - r.left > view.right - view.left) {
+    dx = onLeft ? r.left - view.left : r.right - view.right;           // 太寬：對齊外側邊緣
+  } else if (r.left < view.left) dx = r.left - view.left;
+  else if (r.right > view.right) dx = r.right - view.right;
+  if (r.bottom - r.top > view.bottom - view.top) {
+    const b = box.getBoundingClientRect();                              // 太高：讓被點的項目置中
+    dy = (b.top + b.height / 2) - (view.top + view.bottom) / 2;
+  } else if (r.top < view.top) dy = r.top - view.top;
+  else if (r.bottom > view.bottom) dy = r.bottom - view.bottom;
+  map.scrollBy({left: dx, top: dy, behavior: 'smooth'});
+}
+function centerHub(){
+  if (!isRadial()) return;
+  const m = map.getBoundingClientRect(), h = hub.getBoundingClientRect();
+  map.scrollLeft += (h.left + h.width / 2) - (m.left + m.width / 2);
+  map.scrollTop += (h.top + h.height / 2) - (m.top + m.height / 2);
+}
+function fitHeight(){
+  const top = map.getBoundingClientRect().top + window.scrollY;
+  document.documentElement.style.setProperty('--chrome', top + 'px');
+}
+// 每一組兄弟項目統一寬度（取該組最寬者），讓標題起點對齊同一條線；橫式、直式都適用
+function equalize(){
+  (isRadial() ? radial : vtree).querySelectorAll('ul').forEach(ul => {
+    const nodes = [...ul.querySelectorAll(':scope>li>.node')];
+    nodes.forEach(n => n.style.width = '');
+    const w = Math.max(0, ...nodes.map(n => n.getBoundingClientRect().width));
+    if (w > 0) nodes.forEach(n => n.style.width = Math.ceil(w) + 'px');
+  });
+}
+equalize(); fitHeight(); centerHub();
+document.fonts && document.fonts.ready.then(() => { equalize(); centerHub(); });
+addEventListener('resize', () => { equalize(); fitHeight(); centerHub(); });
+
+// 橫式：拖曳平移
+let drag = null;
+map.addEventListener('pointerdown', e => {
+  if (!isRadial() || e.target.closest('a,button') || e.pointerType === 'touch') return;
+  drag = {x: e.clientX, y: e.clientY, l: map.scrollLeft, t: map.scrollTop};
+  map.classList.add('dragging'); map.setPointerCapture(e.pointerId);
+});
+map.addEventListener('pointermove', e => {
+  if (!drag) return;
+  map.scrollLeft = drag.l - (e.clientX - drag.x);
+  map.scrollTop = drag.t - (e.clientY - drag.y);
+});
+['pointerup', 'pointercancel'].forEach(t => map.addEventListener(t, () => { drag = null; map.classList.remove('dragging'); }));
+
+document.getElementById('stat').textContent = `共 ${total} 個連結`;
+document.getElementById('expand').onclick = () => { branches().forEach(li => setOpen(li, true)); equalize(); centerHub(); };
+document.getElementById('collapse').onclick = () => { document.getElementById('q').value = ''; filter(''); equalize(); centerHub(); };
+
+// ===== 搜尋（兩種版面同步） =====
+function walk(li, q){
+  const self = li._label.toLowerCase().includes(q);
+  const kids = [...li.querySelectorAll(':scope>ul>li')];
+  let any = false;
+  kids.forEach(k => { if (walk(k, q)) any = true; });
+  li.querySelector(':scope>.node').classList.toggle('hit', self);
+  // 符合的項目底下整枝保留，方便直接點課次
+  if (self) kids.forEach(k => { k.classList.remove('hide'); k.querySelectorAll('li.hide').forEach(x => x.classList.remove('hide')); });
+  if (kids.length) setOpen(li, any || self);
+  li.classList.toggle('hide', !(self || any));
+  return self || any;
+}
+function filter(q){
+  q = q.trim().toLowerCase();
+  document.querySelectorAll('#map li').forEach(li => { li.classList.remove('hide'); li.querySelector(':scope>.node').classList.remove('hit'); });
+  if (!q){ defaultState(); return 0; }
+  [...vul.children].forEach(li => walk(li, q));
+  [...R.children, ...L.children].forEach(li => walk(li, q));
+  return vtree.querySelectorAll('.node.hit').length;
+}
+document.getElementById('q').addEventListener('input', e => {
+  const h = filter(e.target.value);
+  equalize();
+  document.getElementById('stat').textContent = e.target.value.trim() ? `找到 ${h} 個項目` : `共 ${total} 個連結`;
+  centerHub();
+});
+</script>
+</body>
+</html>
