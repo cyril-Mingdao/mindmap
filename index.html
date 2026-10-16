@@ -414,13 +414,13 @@ DATA.c.forEach(ch => vul.append(build(ch, 1, true)));
 vroot.append(vul);
 vtree.append(vroot);
 
-// 橫式：中心向外，順時針排列（右側由上往下，左側由下往上）
+// 橫式：中心向外；左側由上往下為「網站紹介～8」，右側由上往下為「9～常用參考資源」
 const radial = document.getElementById('radial');
 const half = Math.ceil(DATA.c.length / 2);
 const R = document.createElement('ul'); R.className = 'side R';
 const L = document.createElement('ul'); L.className = 'side L tog-group';
-DATA.c.slice(0, half).forEach(ch => R.append(build(ch, 1, false)));
-DATA.c.slice(half).reverse().forEach(ch => L.append(build(ch, 1, false)));
+DATA.c.slice(0, half).forEach(ch => L.append(build(ch, 1, false)));
+DATA.c.slice(half).forEach(ch => R.append(build(ch, 1, false)));
 const hub = document.createElement('div'); hub.className = 'hub';
 hub.append(build({...DATA, c: []}, 0, false).firstChild);
 radial.append(L, hub, R);
