@@ -375,8 +375,16 @@ function build(n, lv, count){
     li.append(box, ul);
     li._count = n.c.length;
     b.addEventListener('click', () => {
-      keepInPlace(box, () => { setOpen(li, li.classList.contains('collapsed')); equalize(); });
-      revealBranch(li);
+      const opening = li.classList.contains('collapsed');
+      keepInPlace(box, () => { setOpen(li, opening); equalize(); });
+      if (opening) { revealBranch(li); return; }
+      // 收合：畫面回到「上一層剛展開時」的位置；收合第一層則回到中心
+      const parent = li.parentElement.closest('li');
+      if (isRadial()) {
+        if (parent) revealBranch(parent, parent._view); else centerHub(true);
+      } else {
+        box.scrollIntoView({block: 'nearest', behavior: 'smooth'});
+      }
     });
   } else {
     box.classList.add('leaf');
@@ -426,13 +434,18 @@ function keepInPlace(el, fn){
 }
 // 展開後把「被點的項目＋新長出的子項目」整塊捲進可視範圍；
 // 放不下時以最外側（末端項目）那一邊為準，確保最後觸發的項目文字完整顯示
-function revealBranch(li){
+// base：以哪個捲動位置為起點計算（收合時傳入上一層展開當時記下的位置）；算出的位置記在 li._view
+function revealBranch(li, base){
   if (!isRadial()) return;
   const PAD = 24;
+  const cur = {left: map.scrollLeft, top: map.scrollTop};
+  base = base || cur;
+  const sx = cur.left - base.left, sy = cur.top - base.top;   // 換算成「捲到 base 時」的螢幕座標
+  const at = el => { const x = el.getBoundingClientRect(); return {left: x.left + sx, right: x.right + sx, top: x.top + sy, bottom: x.bottom + sy, height: x.height}; };
   const box = li.querySelector(':scope>.node');
   const ul = li.querySelector(':scope>ul');
-  const rects = [box.getBoundingClientRect()];
-  if (ul && !li.classList.contains('collapsed')) rects.push(ul.getBoundingClientRect());
+  const rects = [at(box)];
+  if (ul && !li.classList.contains('collapsed')) rects.push(at(ul));
   const r = {
     left: Math.min(...rects.map(x => x.left)), right: Math.max(...rects.map(x => x.right)),
     top: Math.min(...rects.map(x => x.top)), bottom: Math.max(...rects.map(x => x.bottom))
@@ -446,17 +459,25 @@ function revealBranch(li){
   } else if (r.left < view.left) dx = r.left - view.left;
   else if (r.right > view.right) dx = r.right - view.right;
   if (r.bottom - r.top > view.bottom - view.top) {
-    const b = box.getBoundingClientRect();                              // 太高：讓被點的項目置中
+    const b = at(box);                                                  // 太高：讓被點的項目置中
     dy = (b.top + b.height / 2) - (view.top + view.bottom) / 2;
   } else if (r.top < view.top) dy = r.top - view.top;
   else if (r.bottom > view.bottom) dy = r.bottom - view.bottom;
-  map.scrollBy({left: dx, top: dy, behavior: 'smooth'});
+  const target = {
+    left: Math.max(0, Math.min(base.left + dx, map.scrollWidth - map.clientWidth)),
+    top: Math.max(0, Math.min(base.top + dy, map.scrollHeight - map.clientHeight))
+  };
+  li._view = target;
+  map.scrollTo({...target, behavior: 'smooth'});
 }
-function centerHub(){
+function centerHub(smooth){
   if (!isRadial()) return;
   const m = map.getBoundingClientRect(), h = hub.getBoundingClientRect();
-  map.scrollLeft += (h.left + h.width / 2) - (m.left + m.width / 2);
-  map.scrollTop += (h.top + h.height / 2) - (m.top + m.height / 2);
+  map.scrollTo({
+    left: map.scrollLeft + (h.left + h.width / 2) - (m.left + m.width / 2),
+    top: map.scrollTop + (h.top + h.height / 2) - (m.top + m.height / 2),
+    behavior: smooth ? 'smooth' : 'auto'
+  });
 }
 function fitHeight(){
   const top = map.getBoundingClientRect().top + window.scrollY;
