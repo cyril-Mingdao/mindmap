@@ -171,7 +171,7 @@
 <main class="map" id="map"><div class="radial" id="radial"></div><ul class="vtree" id="vtree"></ul></main>
 
 <footer>
-  資料來源：<a href="https://sites.google.com/ms.mingdao.edu.tw/tsiam" target="_blank" rel="noopener">宗龍的台語課（Google 協作平台）</a>，2026-10-16 擷取全站連結整理（含各課次頁內的線上測驗連結）。
+  資料來源：<a href="https://sites.google.com/ms.mingdao.edu.tw/tsiam" target="_blank" rel="noopener">宗龍的台語課（Google 協作平台）</a>，2026-10-16 擷取全站連結整理（含各課次頁內的線頂測驗連結）。
   © 2026 詹宗龍（臺中明道中學）
 </footer>
 
@@ -185,7 +185,7 @@ const S = p => /^https?:/.test(p) ? p : SITE + encodeURI(p);
 const PEN = 'https://cyril-mingdao.github.io/pen/';
 const QUIZ = 'https://cyril-mingdao.github.io/taigi-quiz/';
 
-// 各課次頁內「📝 線上測驗」的檔名規則：工具代碼-版本代碼L課次（育達第5課分 5-1／5-2 時加後綴）
+// 各課次頁內「📝 線頂測驗」的檔名規則：工具代碼-版本代碼L課次（育達第5課分 5-1／5-2 時加後綴）
 const QUIZ_TOOL = {形音義: 'HINGIM', 生份字: 'SIANN', 選詞塌空: 'SUANSU', 咱來鬥句: 'TAUKU'};
 const QUIZ_VER = {真平版國中第1冊: 'CHINPING-B1', 全華版國中第3冊: 'CHUANHWA-B3', 育達版高中全1冊: 'YUDA-B1', 康軒版國中第2冊: 'KANGHSUAN-B2'};
 const CN = {一: 1, 二: 2, 三: 3, 四: 4, 五: 5, 六: 6, 七: 7, 八: 8};
@@ -347,8 +347,8 @@ const DATA = {t: '宗龍的台語課', u: '首頁', c: [
     {t: '💡 伊的台語號做啥', u: 'https://cyril-mingdao.github.io/filter/'},
     {t: '🔮 台語劇本生成', u: 'https://cyril-mingdao.github.io/Generate-script/'}
   ]},
-  {t: '15. 教學電子白板', i: '🖥️', u: 'https://cyril-mingdao.github.io/taigi-whiteboard/'},
-  {t: '16. 線上測驗', i: '✅', u: 'https://cyril-mingdao.github.io/taigi-quiz/'},
+  {t: '15. 教學電子白枋', i: '🖥️', u: 'https://cyril-mingdao.github.io/taigi-whiteboard/'},
+  {t: '16. 線頂測驗', i: '✅', u: 'https://cyril-mingdao.github.io/taigi-quiz/'},
   {t: '常用參考資源', i: '📚', u: 'https://sutian.moe.edu.tw/zh-hant/', c: REF}
 ]};
 
@@ -374,7 +374,7 @@ function build(n, lv, count){
   if (n.q){
     const qa = document.createElement('a');
     qa.className = 'quiz'; qa.href = n.q; qa.target = '_blank'; qa.rel = 'noopener';
-    qa.textContent = '📝 測驗'; qa.title = n.t + ' 線上測驗';
+    qa.textContent = '📝 測驗'; qa.title = n.t + ' 線頂測驗';
     box.append(qa);
   }
   if (n.c && n.c.length && lv > 0){
