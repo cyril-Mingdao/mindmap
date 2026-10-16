@@ -75,7 +75,8 @@
   .lv3>.node a:not(.quiz){font-weight:500}
   .lv1>.node .tog{background:var(--black);color:var(--yellow);border-color:var(--black)}
   .node.hit{box-shadow:0 0 0 3px var(--yellow)}
-  li.collapsed>ul,li.hide{display:none}
+  li.collapsed>ul{display:none}
+  #map li.hide{display:none}  /* 須高於 .radial li{display:flex}，搜尋時才隱藏得掉 */
   ul{list-style:none;margin:0;padding:0}
 
   /* ===== 橫式螢幕：由中心向外擴散（右側往右長、左側往左長） ===== */
@@ -84,7 +85,8 @@
     height:calc(100vh - var(--chrome, 150px));min-height:320px;
   }
   .map.dragging{cursor:grabbing;user-select:none}
-  .radial{margin:auto;padding:40px;display:flex;align-items:center;width:max-content}
+  /* 四周留半個畫面的空白，讓任何項目都能被捲到正中央 */
+  .radial{margin:auto;padding:45vh 45vw;display:flex;align-items:center;width:max-content}
   .hub{flex:0 0 auto;position:relative;z-index:1}
   /* 分支不可被壓縮，否則超出容器的部分捲動不到 */
   .radial>*,.radial li>.node,.radial li>ul{flex-shrink:0}
@@ -516,8 +518,29 @@ document.getElementById('q').addEventListener('input', e => {
   const h = filter(e.target.value);
   equalize();
   document.getElementById('stat').textContent = e.target.value.trim() ? `找到 ${h} 個項目` : `共 ${total} 個連結`;
-  centerHub();
+  if (h) centerHit(); else centerHub();
 });
+
+// 搜尋結果：把最上層的符合項目盡量移到畫面中央（捲到底時就停在邊界，不強制）
+function centerHit(){
+  const tree = isRadial() ? radial : vtree;
+  const depth = n => { let d = 0; for (let p = n.parentElement; p && p !== tree; p = p.parentElement) if (p.tagName === 'LI') d++; return d; };
+  const hits = [...tree.querySelectorAll('.node.hit')];
+  if (!hits.length) return;
+  const target = hits.reduce((a, b) => depth(b) < depth(a) ? b : a);
+  const t = target.getBoundingClientRect();
+  if (isRadial()) {
+    const m = map.getBoundingClientRect();
+    map.scrollTo({
+      left: map.scrollLeft + (t.left + t.width / 2) - (m.left + map.clientWidth / 2),
+      top: map.scrollTop + (t.top + t.height / 2) - (m.top + map.clientHeight / 2),
+      behavior: 'smooth'
+    });
+  } else {
+    const bar = document.querySelector('.toolbar').getBoundingClientRect().bottom;
+    window.scrollTo({top: window.scrollY + (t.top + t.height / 2) - (bar + (innerHeight - bar) / 2), behavior: 'smooth'});
+  }
+}
 </script>
 </body>
 </html>
