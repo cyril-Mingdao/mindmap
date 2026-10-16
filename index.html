@@ -47,6 +47,15 @@
   }
   .toolbar button.ghost{background:transparent;color:var(--yellow);box-shadow:inset 0 0 0 2px var(--yellow)}
   .toolbar .stat{color:var(--muted);font-size:.85rem;white-space:nowrap}
+  /* 訪客計數器：原圖是固定配色的 SVG，用濾鏡轉成黑底白字，再以 multiply 疊黃色 → 黑底黃字 */
+  .visits{
+    display:inline-flex;flex:0 0 auto;isolation:isolate;overflow:hidden;
+    background:var(--yellow);border:2px solid var(--yellow);border-radius:6px;
+  }
+  /* 禁止選取（手機長按也一樣），搜尋框除外 */
+  body{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+  .toolbar input{-webkit-user-select:text;user-select:text}
+  .visits img{display:block;height:20px;width:auto;filter:grayscale(1) brightness(.9) contrast(6);mix-blend-mode:multiply}
 
   /* ===== 節點 ===== */
   .node{
@@ -156,6 +165,7 @@
   <button id="expand" type="button">全部展開</button>
   <button id="collapse" type="button" class="ghost">全部收合</button>
   <span class="stat" id="stat"></span>
+  <span class="visits" title="網站造訪人數"><img src="https://visitcounter.charliemoomoo.workers.dev/badge/tsongliongtaigi" alt="造訪人數"></span>
 </div>
 
 <main class="map" id="map"><div class="radial" id="radial"></div><ul class="vtree" id="vtree"></ul></main>
@@ -167,6 +177,9 @@
 
 <script>
 /*! 宗龍的台語課 網站心智圖 — © 2026 詹宗龍（臺中明道中學）保留一切權利。 */
+// 禁止右鍵選單、禁止選取文字（搜尋框除外，才能正常輸入與修改）
+document.addEventListener('contextmenu', e => { if (!e.target.closest('input')) e.preventDefault(); });
+document.onselectstart = e => !!(e.target.closest && e.target.closest('input'));
 const SITE = 'https://sites.google.com/ms.mingdao.edu.tw/tsiam/';
 const S = p => /^https?:/.test(p) ? p : SITE + encodeURI(p);
 const PEN = 'https://cyril-mingdao.github.io/pen/';
