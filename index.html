@@ -56,9 +56,10 @@
   body{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
   .toolbar input{-webkit-user-select:text;user-select:text}
   /* 原 SVG 的 viewBox 四周有留白（左右 6、上下 4，總高 28），用負邊界裁掉；
-     左右再多裁 4 單位把膠囊圓頭切平，讓本體剛好填滿黃框（31/28 倍：4→4.43px、10→11.07px） */
+     左端黑色膠囊圓頭（半徑 10）整段裁掉，改由黃框的圓角（overflow:hidden）決定形狀；
+     右端是黃底看不出圓頭，只多裁 4 單位（31/28 倍：4→4.43px、16→17.71px、10→11.07px） */
   .visits img{
-    display:block;height:31px;width:auto;margin:-4.43px -11.07px;
+    display:block;height:31px;width:auto;margin:-4.43px -11.07px -4.43px -17.71px;
     filter:grayscale(1) brightness(.9) contrast(6);mix-blend-mode:multiply;
   }
 
