@@ -50,19 +50,20 @@
   /* 訪客計數器：原圖是固定配色的 SVG，用濾鏡轉成黑底白字，再以 multiply 疊黃色 → 黑底黃字 */
   .visits{
     display:inline-flex;flex:0 0 auto;isolation:isolate;overflow:hidden;
-    /* 最左端 10 單位（膠囊圓頭，10×31/28≈11.07px）底色補黑，圓頭外的透明處就被填滿，
+    /* 最左端 10 單位（膠囊圓頭，10×1.36=13.6px）底色補黑，圓頭外的透明處就被填滿，
        形狀跟著黃框圓角走；其餘維持黃底，multiply 後文字才會是黃色 */
-    background:linear-gradient(90deg,#000 0 11.07px,var(--yellow) 11.07px);  /* 濾鏡後的膠囊是純黑，補色也用 #000 才不會有色差 */
+    background:linear-gradient(90deg,#000 0 13.6px,var(--yellow) 13.6px);  /* 濾鏡後的膠囊是純黑，補色也用 #000 才不會有色差 */
     border:2px solid var(--yellow);border-radius:6px;
   }
   /* 禁止選取（手機長按也一樣），搜尋框除外 */
   body{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
   .toolbar input{-webkit-user-select:text;user-select:text}
   /* 原 SVG（131×28）的 viewBox 留白加上根元素自帶的 margin:4px 6px，膠囊本體實際落在圖內
-     x 12～131、y 8～28；用負邊界只裁掉左、上的空白，本體全寬保留，兩段文字才各自置中
-     （31/28 倍：12→13.29px、8→8.86px） */
+     x 12～131、y 8～28，文字 10px。放大 1.36 倍讓文字 = 13.6px（與按鈕 .85rem 一致），
+     左邊裁掉 12 單位空白，上下只留 y 9.91～26.09（膠囊中線 ±11px），框高就跟按鈕一樣 26px；
+     寬度全保留，兩段文字才各自置中（12→16.32px、9.91→13.48px、1.91→2.6px） */
   .visits img{
-    display:block;height:31px;width:auto;margin:-8.86px 0 0 -13.29px;
+    display:block;height:38.08px;width:auto;margin:-13.48px 0 -2.6px -16.32px;
     filter:grayscale(1) brightness(.9) contrast(6);mix-blend-mode:multiply;
   }
 
