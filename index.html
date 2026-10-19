@@ -55,7 +55,12 @@
   /* 禁止選取（手機長按也一樣），搜尋框除外 */
   body{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
   .toolbar input{-webkit-user-select:text;user-select:text}
-  .visits img{display:block;height:20px;width:auto;filter:grayscale(1) brightness(.9) contrast(6);mix-blend-mode:multiply}
+  /* 原 SVG 的 viewBox 四周有留白（左右 6、上下 4，總高 28），用負邊界裁掉；
+     左右再多裁 4 單位把膠囊圓頭切平，讓本體剛好填滿黃框（31/28 倍：4→4.43px、10→11.07px） */
+  .visits img{
+    display:block;height:31px;width:auto;margin:-4.43px -11.07px;
+    filter:grayscale(1) brightness(.9) contrast(6);mix-blend-mode:multiply;
+  }
 
   /* ===== 節點 ===== */
   .node{
@@ -154,8 +159,6 @@
     .lv0>.node{font-size:1.1rem;padding:10px 16px}
   }
 
-  footer{padding:14px 24px 24px;color:var(--muted);font-size:.82rem;border-top:1px solid var(--gray)}
-  footer a{color:var(--yellow)}
 </style>
 </head>
 <body>
@@ -169,11 +172,6 @@
 </div>
 
 <main class="map" id="map"><div class="radial" id="radial"></div><ul class="vtree" id="vtree"></ul></main>
-
-<footer>
-  資料來源：<a href="https://sites.google.com/ms.mingdao.edu.tw/tsiam" target="_blank" rel="noopener">宗龍的台語課（Google 協作平台）</a>，2026-10-16 擷取全站連結整理（含各課次頁內的線頂測驗連結）。
-  © 2026 詹宗龍（臺中明道中學）
-</footer>
 
 <script>
 /*! 宗龍的台語課 網站心智圖 — © 2026 詹宗龍（臺中明道中學）保留一切權利。 */
