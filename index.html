@@ -50,16 +50,19 @@
   /* 訪客計數器：原圖是固定配色的 SVG，用濾鏡轉成黑底白字，再以 multiply 疊黃色 → 黑底黃字 */
   .visits{
     display:inline-flex;flex:0 0 auto;isolation:isolate;overflow:hidden;
-    background:var(--yellow);border:2px solid var(--yellow);border-radius:6px;
+    /* 最左端 10 單位（膠囊圓頭，10×31/28≈11.07px）底色補黑，圓頭外的透明處就被填滿，
+       形狀跟著黃框圓角走；其餘維持黃底，multiply 後文字才會是黃色 */
+    background:linear-gradient(90deg,#000 0 11.07px,var(--yellow) 11.07px);  /* 濾鏡後的膠囊是純黑，補色也用 #000 才不會有色差 */
+    border:2px solid var(--yellow);border-radius:6px;
   }
   /* 禁止選取（手機長按也一樣），搜尋框除外 */
   body{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
   .toolbar input{-webkit-user-select:text;user-select:text}
-  /* 原 SVG 的 viewBox 四周有留白（左右 6、上下 4，總高 28），用負邊界裁掉；
-     左端黑色膠囊圓頭（半徑 10）整段裁掉，改由黃框的圓角（overflow:hidden）決定形狀；
-     右端是黃底看不出圓頭，只多裁 4 單位（31/28 倍：4→4.43px、16→17.71px、10→11.07px） */
+  /* 原 SVG（131×28）的 viewBox 留白加上根元素自帶的 margin:4px 6px，膠囊本體實際落在圖內
+     x 12～131、y 8～28；用負邊界只裁掉左、上的空白，本體全寬保留，兩段文字才各自置中
+     （31/28 倍：12→13.29px、8→8.86px） */
   .visits img{
-    display:block;height:31px;width:auto;margin:-4.43px -11.07px -4.43px -17.71px;
+    display:block;height:31px;width:auto;margin:-8.86px 0 0 -13.29px;
     filter:grayscale(1) brightness(.9) contrast(6);mix-blend-mode:multiply;
   }
 
