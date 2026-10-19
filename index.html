@@ -60,10 +60,11 @@
   .toolbar input{-webkit-user-select:text;user-select:text}
   /* 原 SVG（131×28）的 viewBox 留白加上根元素自帶的 margin:4px 6px，膠囊本體實際落在圖內
      x 12～131、y 8～28，文字 10px。放大 1.36 倍讓文字 = 13.6px（與按鈕 .85rem 一致），
-     左邊裁掉 12 單位空白，上下只留 y 9.91～26.09（膠囊中線 ±11px），框高就跟按鈕一樣 26px；
-     寬度全保留，兩段文字才各自置中（12→16.32px、9.91→13.48px、1.91→2.6px） */
+     左邊裁掉 12 單位空白，上下共留 22px，框高就跟按鈕一樣 26px；寬度全保留，兩段文字才各自左右置中。
+     SVG 內中文字型的視覺中心比膠囊中線高約 3px，所以上緣貼齊膠囊頂（y 8 → 10.88px）、
+     多裁下緣（5.2px），文字就上下置中（12→16.32px） */
   .visits img{
-    display:block;height:38.08px;width:auto;margin:-13.48px 0 -2.6px -16.32px;
+    display:block;height:38.08px;width:auto;margin:-10.88px 0 -5.2px -16.32px;
     filter:grayscale(1) brightness(.9) contrast(6);mix-blend-mode:multiply;
   }
 
