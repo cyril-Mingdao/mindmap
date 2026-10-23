@@ -352,6 +352,7 @@ const DATA = {t: '宗龍的台語課', u: 'https://sites.google.com/ms.mingdao.e
   ]},
   {t: '15. 教學電子白枋', i: '🖥️', u: 'https://cyril-mingdao.github.io/taigi-whiteboard/'},
   {t: '16. 線頂測驗', i: '✅', u: 'https://cyril-mingdao.github.io/taigi-quiz/'},
+  {t: '擴充套件：台語螢幕畫筆', i: '🔌', u: 'https://chromewebstore.google.com/detail/eidmlamodkcbmbdeipdbkbanaeemighp'},
   {t: '常用參考資源', i: '📚', u: 'https://sutian.moe.edu.tw/zh-hant/', c: REF}
 ]};
 
@@ -419,7 +420,8 @@ vtree.append(vroot);
 
 // 橫式：中心向外；左側由上往下為「網站紹介～8」，右側由上往下為「9～常用參考資源」
 const radial = document.getElementById('radial');
-const half = Math.ceil(DATA.c.length / 2);
+// 左側網站紹介～8、右側 9～參考資源
+const half = DATA.c.findIndex(ch => ch.t.startsWith('9.'));
 const R = document.createElement('ul'); R.className = 'side R';
 const L = document.createElement('ul'); L.className = 'side L tog-group';
 DATA.c.slice(0, half).forEach(ch => L.append(build(ch, 1, false)));
