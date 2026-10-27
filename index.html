@@ -13,7 +13,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="author" content="詹宗龍（臺中明道中學）">
 <meta name="copyright" content="© 2026 詹宗龍（臺中明道中學）。保留一切權利。">
-<title>宗龍的台語課・網站心智圖</title>
+<title>地圖模式-宗龍的台語課</title>
 <style>
   :root{
     --black:#111111; --yellow:#FFD400; --white:#FFFFFF;
@@ -74,6 +74,7 @@
     border-radius:10px;padding:6px 6px 6px 12px;max-width:300px;
   }
   .node a{color:inherit;text-decoration:none;font-weight:600}
+  .node a img.flag{height:.95em;width:auto;vertical-align:-.1em;margin-right:.3em;border-radius:2px;box-shadow:0 0 0 1px rgba(255,255,255,.35)}
   .node a:hover,.node a:focus-visible{text-decoration:underline;text-underline-offset:3px;outline:none}
   .node .ext{font-size:.75em;opacity:.7;margin-left:2px}
   .node a.quiz{
@@ -326,6 +327,7 @@ const DATA = {t: '宗龍的台語課', u: 'https://sites.google.com/ms.mingdao.e
   {t: '12. 互動答題工具', i: '📝', u: '答題工具', c: [
     {t: '📝 選擇題', u: 'https://cyril-mingdao.github.io/choose/'},
     {t: '🔢 排序題', u: 'https://cyril-mingdao.github.io/Sort/'},
+    {t: '🔤 拼音題', u: 'https://cyril-mingdao.github.io/spell-interaction/'},
     {t: '🔔 課程搶答', u: 'https://cyril-mingdao.github.io/taigi-buzzer/'}
   ]},
   // 分組依原網站「主題教學」頁的難度標示
@@ -336,15 +338,15 @@ const DATA = {t: '宗龍的台語課', u: 'https://sites.google.com/ms.mingdao.e
     ]],
     ['🟡 難度：中', [
       ['phone','📱 咱來耍手機仔'],['index','🐶 動物叫啥名'],['AnimalRandom','🐼 動物亂數'],['sports','🏀 運動叫啥名'],
-      ['SportsRandom','🏸 運動亂數'],['A-Hundred-Kinds-of-People','👥 台語百樣人大挑戰'],['Similar-sounds','🇰🇷 聽韓語拼台羅'],
-      ['Similar-sounds-JP','🇯🇵 聽日語拼台羅'],['Similar-sounds-VN','🇻🇳 聽越語拼台羅']
+      ['SportsRandom','🏸 運動亂數'],['A-Hundred-Kinds-of-People','👥 台語百樣人大挑戰'],['Similar-sounds','聽韓語拼台羅','kr'],
+      ['Similar-sounds-JP','聽日語拼台羅','jp'],['Similar-sounds-VN','聽越語拼台羅','vn'],['Similar-sounds-Mandarin','聽華語拼台語','tw']
     ]],
     ['🔴 難度：難', [
       ['organ','🫀 器官叫啥名'],['OrganRandom','🧠 器官亂數'],['vhicles','🚗 交通工具叫啥名'],['VhiclesRandom','🚌 交通工具亂數'],
       ['Incorrect-pronunciation-I','🚨 俗唸 Part1'],['Incorrect-pronunciation-II','⚠️ 俗唸 Part2'],
       ['chef-I','👨🏻‍🍳 廚子 Part1'],['chef-II','👩🏻‍🍳 廚子 Part2'],['Solar-Terms','⛅ 二十四節氣'],['foreign-words','💬 台語外來詞大挑戰']
     ]]
-  ].map(([t, list]) => ({t, u: '主題教學', c: list.map(([s, t]) => ({t, u: `https://cyril-mingdao.github.io/${s}/`}))}))},
+  ].map(([t, list]) => ({t, u: '主題教學', c: list.map(([s, t, f]) => ({t, f, u: `https://cyril-mingdao.github.io/${s}/`}))}))},
   {t: '14. API 進階工具', i: '⚙️', u: 'api進階工具', c: [
     {t: '🌏 智能翻譯機', u: 'https://cyril-mingdao.github.io/translate/'},
     {t: '🧠 心智圖大綱生成', u: 'https://cyril-mingdao.github.io/mind-map/'},
@@ -370,6 +372,12 @@ function build(n, lv, count){
   const url = S(n.u);
   a.href = url; a.target = '_blank'; a.rel = 'noopener';
   a.textContent = (n.i ? n.i + ' ' : '') + n.t;
+  // 國旗用 flagcdn 圖片（Windows 不顯示國旗 emoji），與原網站「主題教學」頁一致
+  if (n.f){
+    const img = document.createElement('img');
+    img.className = 'flag'; img.src = `https://flagcdn.com/${n.f}.svg`; img.alt = '';
+    a.prepend(img);
+  }
   if (!url.startsWith(SITE)) {
     const e = document.createElement('span');
     e.className = 'ext'; e.textContent = '↗'; e.title = '外部網站';
