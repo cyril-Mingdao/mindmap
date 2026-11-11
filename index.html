@@ -424,10 +424,10 @@ DATA.c.forEach(ch => vul.append(build(ch, 1, true)));
 vroot.append(vul);
 vtree.append(vroot);
 
-// 橫式：中心向外；左側由上往下為「網站紹介～8」，右側由上往下為「9～常用參考資源」
+// 橫式：中心向外；左側由上往下為「網站紹介～9」，右側由上往下為「10～常用參考資源」
 const radial = document.getElementById('radial');
-// 左側網站紹介～8、右側 9～參考資源
-const half = DATA.c.findIndex(ch => ch.t.startsWith('9.'));
+// 左側網站紹介～9、右側 10～參考資源
+const half = DATA.c.findIndex(ch => ch.t.startsWith('10.'));
 const R = document.createElement('ul'); R.className = 'side R';
 const L = document.createElement('ul'); L.className = 'side L tog-group';
 DATA.c.slice(0, half).forEach(ch => L.append(build(ch, 1, false)));
