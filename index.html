@@ -230,11 +230,6 @@ const REF = [
 ];
 
 const DATA = {t: '宗龍的台語課', u: 'https://sites.google.com/ms.mingdao.edu.tw/tsiam/', c: [
-  {t: '網站紹介', i: '📺', u: 'https://cyril-mingdao.github.io/Introduction/', c: [
-    {t: '▶ 宗龍的台語課（華語介紹）', u: 'https://www.youtube.com/watch?v=lRKkWrjssoQ'},
-    {t: '▶ 宗龍的台語課（台語紹介）', u: 'https://www.youtube.com/watch?v=mE_xaBoZIlU'},
-    {t: '▶ 宗龍的台語課（師生升級之路）', u: 'https://www.youtube.com/watch?v=8m94O-hLhPw'}
-  ]},
   {t: '1. 華台語翻譯語音', i: '🗣️', u: '華台翻譯', c: [
     {t: '華台轉換工具（來源網站）', u: 'https://gnisew.github.io/tools/turn/g2m2.html'},
     {t: '意傳媠聲（來源網站）', u: 'https://suisiann.ithuan.tw/'}
@@ -352,7 +347,14 @@ const DATA = {t: '宗龍的台語課', u: 'https://sites.google.com/ms.mingdao.e
   ]},
   {t: '15. 教學電子白枋', i: '🖥️', u: 'https://cyril-mingdao.github.io/taigi-whiteboard/'},
   {t: '16. 線頂測驗', i: '✅', u: 'https://cyril-mingdao.github.io/taigi-quiz/'},
-  {t: '擴充套件：台語螢幕畫筆', i: '🔌', u: 'https://cyril-mingdao.github.io/taigi-screen-pen/'},
+  {t: '網站紹介＋擴充套件', i: '🔌', u: 'https://cyril-mingdao.github.io/Introduction/', c: [
+    {t: '網站紹介', i: '📺', u: 'https://cyril-mingdao.github.io/Introduction/', c: [
+      {t: '▶ 宗龍的台語課（華語介紹）', u: 'https://www.youtube.com/watch?v=lRKkWrjssoQ'},
+      {t: '▶ 宗龍的台語課（台語紹介）', u: 'https://www.youtube.com/watch?v=mE_xaBoZIlU'},
+      {t: '▶ 宗龍的台語課（師生升級之路）', u: 'https://www.youtube.com/watch?v=8m94O-hLhPw'}
+    ]},
+    {t: '擴充套件：台語螢幕畫筆', i: '🖊️', u: 'https://cyril-mingdao.github.io/taigi-screen-pen/'}
+  ]},
   {t: '常用參考資源', i: '📚', u: 'https://sutian.moe.edu.tw/zh-hant/', c: REF}
 ]};
 
@@ -424,9 +426,9 @@ DATA.c.forEach(ch => vul.append(build(ch, 1, true)));
 vroot.append(vul);
 vtree.append(vroot);
 
-// 橫式：中心向外；左側由上往下為「網站紹介～9」，右側由上往下為「10～常用參考資源」
+// 橫式：中心向外；左側由上往下為「1～9」，右側由上往下為「10～常用參考資源」（網站紹介併入右側擴充套件節點）
 const radial = document.getElementById('radial');
-// 左側網站紹介～9、右側 10～參考資源
+// 左側 1～9、右側 10～參考資源，各 9 項
 const half = DATA.c.findIndex(ch => ch.t.startsWith('10.'));
 const R = document.createElement('ul'); R.className = 'side R';
 const L = document.createElement('ul'); L.className = 'side L tog-group';
