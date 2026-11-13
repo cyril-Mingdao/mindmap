@@ -203,12 +203,23 @@ function quizOf(path){
   return `${QUIZ}${QUIZ_TOOL[tool]}-${QUIZ_VER[ver]}L${n}${m[2] ? '-' + m[2] : ''}.html`;
 }
 
+// 課堂遊戲課次改連 GitHub Pages（taigi-class-games）：遊戲資料夾/版本代碼/L課次[-分段].html
+const GAMES_GH = 'https://cyril-mingdao.github.io/taigi-class-games/';
+const GAME_DIR = {形音義: 'hingim', 生份字: 'siann', 選詞塌空: 'suansu', 咱來鬥句: 'tauku', 心智圖: 'mindmap'};
+function ghOf(path){
+  const [tool, ver, page] = path.split('/');
+  const m = page && page.match(/^第([一二三四五六七八\d])課-(\d(?=\D))?/);
+  if (!GAME_DIR[tool] || !QUIZ_VER[ver] || !m) return null;
+  const n = CN[m[1]] || m[1];
+  return `${GAMES_GH}${GAME_DIR[tool]}/${QUIZ_VER[ver]}/L${n}${m[2] ? '-' + m[2] : ''}.html`;
+}
+
 // 將「工具/版本/課次」路徑清單依版本分組
 function byVersion(list){
   const groups = new Map();
   list.forEach(([path, label]) => {
     const parts = path.split('/');
-    const node = {t: label, u: path, q: quizOf(path)};
+    const node = {t: label, u: ghOf(path) || path, q: quizOf(path)};
     if (parts.length < 3) { groups.set('_' + path, node); return; }
     if (!groups.has(parts[1])) groups.set(parts[1], {t: parts[1], u: parts[0], c: []});
     groups.get(parts[1]).c.push(node);
