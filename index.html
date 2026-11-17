@@ -193,7 +193,7 @@ const QUIZ = 'https://cyril-mingdao.github.io/taigi-quiz/';
 
 // 各課次頁內「📝 線頂測驗」的檔名規則：工具代碼-版本代碼L課次（育達第5課分 5-1／5-2 時加後綴）
 const QUIZ_TOOL = {形音義: 'HINGIM', 生份字: 'SIANN', 選詞塌空: 'SUANSU', 咱來鬥句: 'TAUKU'};
-const QUIZ_VER = {真平版國中第1冊: 'CHINPING-B1', 全華版國中第3冊: 'CHUANHWA-B3', 育達版高中全1冊: 'YUDA-B1', 康軒版國中第2冊: 'KANGHSUAN-B2', 康軒版國中第4冊: 'KANGHSUAN-B4'};
+const QUIZ_VER = {真平版國中第1冊: 'CHINPING-B1', 全華版國中第1冊: 'CHUANHWA-B1', 全華版國中第2冊: 'CHUANHWA-B2', 全華版國中第3冊: 'CHUANHWA-B3', 育達版高中全1冊: 'YUDA-B1', 康軒版國中第2冊: 'KANGHSUAN-B2', 康軒版國中第4冊: 'KANGHSUAN-B4'};
 const CN = {一: 1, 二: 2, 三: 3, 四: 4, 五: 5, 六: 6, 七: 7, 八: 8};
 function quizOf(path){
   const [tool, ver, page] = path.split('/');
@@ -227,6 +227,13 @@ function byVersion(list){
   return [...groups.values()];
 }
 const CH = tool => [
+  [`${tool}/全華版國中第1冊/第1課-日頭公變魔術有影抑無影`, '第1課 日頭公變魔術，有影抑無影？'],
+  [`${tool}/全華版國中第1冊/第2課-香菇頭`, '第2課 香菇頭'],
+  [`${tool}/全華版國中第1冊/第3課-芫荽皮蛋豬血粿pizza`, '第3課 芫荽皮蛋豬血粿Pizza'],
+  [`${tool}/全華版國中第1冊/第4課-生活中的ai`, '第4課 生活中的AI'],
+  [`${tool}/全華版國中第2冊/第1課-無事坐巴士`, '第1課 無事坐巴士'],
+  [`${tool}/全華版國中第2冊/第2課-討海人的期待平安佮滿載`, '第2課 討海人的期待 平安佮滿載'],
+  [`${tool}/全華版國中第2冊/第3課-烏嘛嘛`, '第3課 烏嘛嘛'],
   [`${tool}/全華版國中第3冊/第1課-媠花`, '第1課 媠花'],
   [`${tool}/全華版國中第3冊/第2課-阮兜這條街`, '第2課 阮兜這條街'],
   [`${tool}/全華版國中第3冊/第3課-一字多音真心適`, '第3課 一字多音真心適'],
@@ -287,6 +294,10 @@ const DATA = {t: '宗龍的台語課', u: 'https://sites.google.com/ms.mingdao.e
   {t: '8. 自學點讀筆', i: '🖊️', u: '點讀筆', c: [
     {t: '真平版國中第1冊', u: '點讀筆', c: ['趣味的誤會','啥台語嘛有火星文','人佮獅','龜兔走標','踅菜市','割稻仔飯']
       .map((n, k) => ({t: `第${k+1}課 ${n}`, u: `${PEN}CHENPING-B1L${k+1}`}))},
+    {t: '全華版國中第1冊', u: '點讀筆', c: ['日頭公變魔術，有影抑無影？','香菇頭','芫荽皮蛋豬血粿Pizza','生活中的AI']
+      .map((n, k) => ({t: `第${k+1}課 ${n}`, u: `${PEN}CHUANHWA-B1L${k+1}`, q: `https://cyril-mingdao.github.io/Voice-test/CHUANHWA-B1L${k+1}.html`}))},
+    {t: '全華版國中第2冊', u: '點讀筆', c: ['無事坐巴士','討海人的期待 平安佮滿載','烏嘛嘛']
+      .map((n, k) => ({t: `第${k+1}課 ${n}`, u: `${PEN}CHUANHWA-B2L${k+1}`, q: `https://cyril-mingdao.github.io/Voice-test/CHUANHWA-B2L${k+1}.html`}))},
     {t: '全華版國中第3冊', u: '點讀筆', c: ['媠花','阮兜這條街','一字多音真心適','喝玲瑯，踅街路']
       .map((n, k) => ({t: `第${k+1}課 ${n}`, u: `${PEN}CHUANHWA-B3L${k+1}`}))},
     {t: '育達版高中全1冊', u: '點讀筆', c: [
