@@ -95,6 +95,8 @@
   .lv2>.node{background:var(--gray);color:var(--yellow);border:1px solid var(--yellow)}
   .lv3>.node{background:var(--gray);color:var(--white);font-size:.92rem}
   .lv3>.node a:not(.quiz){font-weight:500}
+  .lv3.grp>.node{color:var(--yellow);border:1px dashed var(--yellow);font-size:.95rem}
+  .lv3.grp>.node a:not(.quiz){font-weight:700}
   .lv1>.node .tog{background:var(--black);color:var(--yellow);border-color:var(--black)}
   .node.hit{box-shadow:0 0 0 3px var(--yellow)}
   li.collapsed>ul{display:none}
@@ -193,7 +195,7 @@ const QUIZ = 'https://cyril-mingdao.github.io/taigi-quiz/';
 
 // 各課次頁內「📝 線頂測驗」的檔名規則：工具代碼-版本代碼L課次（育達第5課分 5-1／5-2 時加後綴）
 const QUIZ_TOOL = {形音義: 'HINGIM', 生份字: 'SIANN', 選詞塌空: 'SUANSU', 咱來鬥句: 'TAUKU'};
-const QUIZ_VER = {真平版國中第1冊: 'CHINPING-B1', 全華版國中第1冊: 'CHUANHWA-B1', 全華版國中第2冊: 'CHUANHWA-B2', 全華版國中第3冊: 'CHUANHWA-B3', 育達版高中全1冊: 'YUDA-B1', 康軒版國中第2冊: 'KANGHSUAN-B2', 康軒版國中第4冊: 'KANGHSUAN-B4', 康軒版國中第1冊: 'KANGHSUAN-B1', 康軒版國中第3冊: 'KANGHSUAN-B3'};
+const QUIZ_VER = {真平版國中第1冊: 'CHINPING-B1', 全華版國中第1冊: 'CHUANHWA-B1', 全華版國中第2冊: 'CHUANHWA-B2', 全華版國中第3冊: 'CHUANHWA-B3', 育達版高中全1冊: 'YUDA-B1', 康軒版國中第2冊: 'KANGHSUAN-B2', 康軒版國中第4冊: 'KANGHSUAN-B4', 康軒版國中第1冊: 'KANGHSUAN-B1', 康軒版國中第3冊: 'KANGHSUAN-B3', 全華版國中第4冊: 'CHUANHWA-B4'};
 const CN = {一: 1, 二: 2, 三: 3, 四: 4, 五: 5, 六: 6, 七: 7, 八: 8};
 function quizOf(path){
   const [tool, ver, page] = path.split('/');
@@ -224,7 +226,23 @@ function byVersion(list){
     if (!groups.has(parts[1])) groups.set(parts[1], {t: parts[1], u: parts[0], c: []});
     groups.get(parts[1]).c.push(node);
   });
-  return [...groups.values()];
+  return byPub([...groups.values()]);
+}
+
+// 版本太多不易閱讀（2026-11-18 老師要求）：先分出版社，再分冊別；出版社順序 真平→康軒→全華→育達，同社依冊號。
+// 只有一冊的出版社直接放冊別節點，不多一層。
+const PUBS = ['真平', '康軒', '全華', '育達'];
+const volNo = t => +((t.match(/第(\d+)冊/) || t.match(/全(\d+)冊/) || [0, 0])[1]);
+function byPub(nodes){
+  const out = [], rest = [];
+  const by = new Map(PUBS.map(p => [p, []]));
+  nodes.forEach(n => { const p = PUBS.find(x => n.t.startsWith(x + '版')); (p ? by.get(p) : rest).push(n); });
+  PUBS.forEach(p => {
+    const books = by.get(p).sort((a, b) => volNo(a.t) - volNo(b.t));
+    if (books.length === 1) out.push(books[0]);
+    else if (books.length > 1) out.push({t: `${p}版（${books.length}冊）`, u: books[0].u, c: books});
+  });
+  return out.concat(rest);
 }
 const CH = tool => [
   [`${tool}/全華版國中第1冊/第1課-日頭公變魔術有影抑無影`, '第1課 日頭公變魔術，有影抑無影？'],
@@ -237,7 +255,10 @@ const CH = tool => [
   [`${tool}/全華版國中第3冊/第1課-媠花`, '第1課 媠花'],
   [`${tool}/全華版國中第3冊/第2課-阮兜這條街`, '第2課 阮兜這條街'],
   [`${tool}/全華版國中第3冊/第3課-一字多音真心適`, '第3課 一字多音真心適'],
-  [`${tool}/全華版國中第3冊/第4課-喝玲瑯踅街路`, '第4課 喝玲瑯，踅街路']
+  [`${tool}/全華版國中第3冊/第4課-喝玲瑯踅街路`, '第4課 喝玲瑯，踅街路'],
+  [`${tool}/全華版國中第4冊/第1課-老城市新住民`, '第1課 老城市‧新住民'],
+  [`${tool}/全華版國中第4冊/第2課-白賊話`, '第2課 白賊話'],
+  [`${tool}/全華版國中第4冊/第3課-臺灣海妖`, '第3課 臺灣海妖']
 ];
 const KH1 = tool => [
   [`${tool}/康軒版國中第1冊/第1課-講咱的話`, '第1課 講咱的話'],
@@ -312,7 +333,7 @@ const DATA = {t: '宗龍的台語課', u: 'https://sites.google.com/ms.mingdao.e
   {t: '7. 延伸討論', i: '💬', u: '延伸討論', c: [{t: '育達版高中全1冊', u: '延伸討論', c: [
     ['延伸討論/第1課-美食外送','第1課 美食外送'],['延伸討論/第2課-茂林的rukai族佮烏秫米祭','第2課 茂林的Rukai族佮烏秫米祭'],['延伸討論/第3課-山裡的英雄','第3課 山裡的英雄'],['延伸討論/第4課-馬偕之路','第4課 馬偕之路'],['延伸討論/第5課-無字的情批-情批','第5課 無字的情批＋情批'],['延伸討論/第6課-化妝品','第6課 化妝品'],['延伸討論/第7課-我的人生我創造','第7課 我的人生，我創造'],['延伸討論/第8課-翕相師傅','第8課 翕相師傅']
   ].map(([u, t]) => ({t, u}))}]},
-  {t: '8. 自學點讀筆', i: '🖊️', u: '點讀筆', c: [
+  {t: '8. 自學點讀筆', i: '🖊️', u: '點讀筆', c: byPub([
     {t: '真平版國中第1冊', u: '點讀筆', c: ['趣味的誤會','啥台語嘛有火星文','人佮獅','龜兔走標','踅菜市','割稻仔飯']
       .map((n, k) => ({t: `第${k+1}課 ${n}`, u: `${PEN}CHENPING-B1L${k+1}`}))},
     {t: '全華版國中第1冊', u: '點讀筆', c: ['日頭公變魔術，有影抑無影？','香菇頭','芫荽皮蛋豬血粿Pizza','生活中的AI']
@@ -321,6 +342,8 @@ const DATA = {t: '宗龍的台語課', u: 'https://sites.google.com/ms.mingdao.e
       .map((n, k) => ({t: `第${k+1}課 ${n}`, u: `${PEN}CHUANHWA-B2L${k+1}`, q: `https://cyril-mingdao.github.io/Voice-test/CHUANHWA-B2L${k+1}.html`}))},
     {t: '全華版國中第3冊', u: '點讀筆', c: ['媠花','阮兜這條街','一字多音真心適','喝玲瑯，踅街路']
       .map((n, k) => ({t: `第${k+1}課 ${n}`, u: `${PEN}CHUANHWA-B3L${k+1}`}))},
+    {t: '全華版國中第4冊', u: '點讀筆', c: ['老城市‧新住民','白賊話','臺灣海妖']
+      .map((n, k) => ({t: `第${k+1}課 ${n}`, u: `${PEN}CHUANHWA-B4L${k+1}`, q: `https://cyril-mingdao.github.io/Voice-test/CHUANHWA-B4L${k+1}.html`}))},
     {t: '育達版高中全1冊', u: '點讀筆', c: [
       ['1','第1課 美食外送'],['2','第2課 茂林的Rukai族佮烏秫米祭'],['3','第3課 山裡的英雄'],['4','第4課 馬偕之路'],
       ['5-1','第5課 無字的情批-1'],['5-2','第5課 情批-2'],['6','第6課 化妝品'],['7','第7課 我的人生，我創造'],['8','第8課 翕相師傅']
@@ -333,7 +356,7 @@ const DATA = {t: '宗龍的台語課', u: 'https://sites.google.com/ms.mingdao.e
       .map((n, k) => ({t: `第${k+1}課 ${n}`, u: `${PEN}KANGHSUAN-B3L${k+1}`, q: `https://cyril-mingdao.github.io/Voice-test/KANGHSUAN-B3L${k+1}.html`}))},
     {t: '康軒版國中第4冊', u: '點讀筆', c: ['鴛鴦菜脯卵','寄話','千途萬途，肯行就有前途']
       .map((n, k) => ({t: `第${k+1}課 ${n}`, u: `${PEN}KANGHSUAN-B4L${k+1}`, q: `https://cyril-mingdao.github.io/Voice-test/KANGHSUAN-B4L${k+1}.html`}))}
-  ]},
+  ])},
   {t: '9. 羅馬字發音練習', i: '🔤', u: '發音練習', c: [
     {t: '📖 台語羅馬字拼音系統', u: 'https://cyril-mingdao.github.io/Taiwanese-Romanization/'},
     {t: '✍️ 拼字組合練習', u: 'https://cyril-mingdao.github.io/spell/', c: [
@@ -420,7 +443,7 @@ let total = 0;
 function build(n, lv, count){
   if (count) total += 1 + (n.q ? 1 : 0);
   const li = document.createElement('li');
-  li.className = 'lv' + Math.min(lv, 3);
+  li.className = 'lv' + Math.min(lv, 3) + (n.c && n.c.length && lv >= 3 ? ' grp' : '');
   li._label = n.t;
   const box = document.createElement('div');
   box.className = 'node';
