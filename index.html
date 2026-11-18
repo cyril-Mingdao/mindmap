@@ -230,8 +230,9 @@ function byVersion(list){
 }
 
 // 版本太多不易閱讀（2026-11-18 老師要求）：先分出版社，再分冊別；出版社順序 真平→康軒→全華→育達，同社依冊號。
-// 只有一冊的出版社直接放冊別節點，不多一層。
+// 出版社節點名稱照老師指定（2026-11-18）；冊別節點只寫「第N冊／全1冊」。
 const PUBS = ['真平', '康軒', '全華', '育達'];
+const PUB_LABEL = {真平: '真平版國中', 康軒: '康軒版國中', 全華: '全華版國中', 育達: '育達版高中'};
 const volNo = t => +((t.match(/第(\d+)冊/) || t.match(/全(\d+)冊/) || [0, 0])[1]);
 function byPub(nodes){
   const out = [], rest = [];
@@ -239,8 +240,7 @@ function byPub(nodes){
   nodes.forEach(n => { const p = PUBS.find(x => n.t.startsWith(x + '版')); (p ? by.get(p) : rest).push(n); });
   PUBS.forEach(p => {
     const books = by.get(p).sort((a, b) => volNo(a.t) - volNo(b.t));
-    if (books.length === 1) out.push(books[0]);
-    else if (books.length > 1) out.push({t: `${p}版（${books.length}冊）`, u: books[0].u, c: books});
+    if (books.length) out.push({t: PUB_LABEL[p], u: books[0].u, c: books.map(n => ({...n, t: n.t.replace(/^..版(國中|高中)/, '')}))});
   });
   return out.concat(rest);
 }
